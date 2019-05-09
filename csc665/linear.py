@@ -9,22 +9,26 @@ class LinearRegression:
 
     def fit(self, X,y):
         print("fitting")
-        x = np.insert(X, 0, 1, axis=1)
-        n = x.shape[1] # number of features = n
-        m = x.shape[0] # number of data entries = m
-        # h = np.zeros(m)
-        self.parameters = np.zeros(n)
-
-        print(self.parameters.shape)
-        print(x.shape)
-        h = self.predict(X[0])
-        print(h)
-
+        self.n_features = X.shape[1]
+        one_col = np.ones((X.shape[0], 1))
+        X = np.concatenate((one_col, X), axis=1)
+        self.parameters = np.zeros(self.n_features + 1)
+        h = self.predict(X)
+        # gradient descent
+        for i in range(0, self.max_iterations):
+            self.parameters[0] = self.parameters[0] - (self.learning_rate / X.shape[0]) * sum(h-y)
+            for j  in range(1, self.n_features + 1):
+                self.parameters[j] = self.parameters[j] - (self.learning_rate / X.shape[0]) * sum((h-y) * X.transpose()[j])
+            h = self.predict(X)
 
 
     def predict(self, X):
-        x = np.insert(X, 0, 1) # make first element in input 1
-        return x.dot(self.parameters)
+        h = np.ones((X.shape[0], 1))
+        theta = self.parameters.reshape(1, self.n_features + 1)
+        for i  in range(0, X.shape[0]):
+            h[i] = float(np.matmul(theta, X[i]))
+        h = h.reshape(X.shape[0])
+        return h
 
 class LogisticRegression:
     def __init__(self, learning_rate, max_iterations):
